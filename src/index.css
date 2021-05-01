@@ -11,3 +11,57 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.ContextMenu {
+  background-color: white;
+  border-style: solid;
+  border-width: 0.2vh;
+  width: fit-content;
+}
+
+.ContextMenu button {
+  background-color: white;
+  border: none;
+  padding: 1vh 1vh 1vh 1vh;
+  text-align:left;
+  font-size: 2vh;
+  margin: 0.2vh 0.2vh;
+  cursor: pointer;
+  width: 99%;
+}
+
+.ContextMenu button:hover {
+  background-color: rgb(235, 235, 235);
+}
+
+.container {
+  background-color: rgb(252, 159, 110);
+  border-style: solid;
+  text-align:center;
+  width: fit-content;
+  height: fit-content;
+  font-size: 1.5vh;
+  margin-top: 0px;
+  padding: 10px;
+}
+
+/* .container:hover {
+  cursor: move;
+} */
+
+.container button {
+  background-color: rgb(252, 159, 110);
+  font-size: 2vh;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+}
+
+.container button:hover {
+  cursor:pointer;
+  background-color: rgb(255, 177, 136);
+}
+
+.work-space {
+  background-color: #7fffd4;
+}
