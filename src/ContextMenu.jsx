@@ -1,5 +1,6 @@
 import React, {
     useState,
+    useEffect,
     useRef,
 } from 'react';
 
@@ -11,7 +12,7 @@ const validTargets = [
 ];
 const findValidContainer = createValidator(validTargets);
 
-function ContextMenuGenerator({buttons}) {
+function ContextMenuGenerator({buttons, active}) {
     const [menus, setMenus] = useState([]);
     const menusRef = useRef({});
     menusRef.current = menus;
@@ -111,7 +112,7 @@ function ContextMenuGenerator({buttons}) {
             if(!["ContextMenu","MenuButton",].includes(event.target.className)) {
                 setMenus([]);
             }
-        })
+        });
     });
 
     return(<>{menus}</>);

@@ -35,33 +35,63 @@ code {
 }
 
 .container {
-  background-color: rgb(252, 159, 110);
+  background-color: rgb(252, 190, 110);
   border-style: solid;
   text-align:center;
-  width: fit-content;
-  height: fit-content;
   font-size: 1.5vh;
-  margin-top: 0px;
-  padding: 10px;
+  padding: 0px 0px 0px 0px;
+  margin: 0px 0px 0px 0px;
+  cursor: '';
 }
 
-/* .container:hover {
-  cursor: move;
-} */
-
-.container button {
-  background-color: rgb(252, 159, 110);
+.container textarea{
+  height: fit-content;
+  width: fit-content;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  max-width: 100%;
+  max-height: 100%;
+  text-align:center;
   font-size: 2vh;
-  text-decoration: none;
-  display: inline-block;
-  border: none;
 }
 
-.container button:hover {
-  cursor:pointer;
-  background-color: rgb(255, 177, 136);
+.container h3 {
+  margin-top: 0px;
+  padding: 1px 2px 1px 2px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.container h3:hover {
+  background-color: rgb(235, 235, 235);
 }
 
 .work-space {
   background-color: #7fffd4;
+  width: 100vw;
+  height: 100vh;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+svg {
+  position:absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.download-button {
+  right: 0%;
+  bottom: 0%;
+  position: fixed;
+  font-size: 1.5vh;
+  margin: 0.2vh 0.2vh;
+  padding: 1vh 1vh 1vh 1vh;
+  z-index: 10;
 }

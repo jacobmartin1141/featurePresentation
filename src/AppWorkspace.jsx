@@ -69,9 +69,38 @@ function drag_over(event) {
 }
 
 function BasicContainer({id, xPos = 0, yPos = 0}) {
+    const displayForm = () => {
+        setDisplay({element: <form onClick={displayName}>
+            <textarea
+                id='name'
+                name='name'
+                onChange={changeHandler}
+                autoFocus='true'
+                required='true'
+                placeholder='Click to save text'
+            ></textarea>
+        </form>, text: displayRef.current.text});
+    }
+
+    const displayInit = {element: <h3 onClick={displayForm}>New Container</h3>, text: "New Container"}
+    const [display, setDisplay] = useState(displayInit);
+    const displayRef = useRef({});
+    displayRef.current = display;
+
+    const changeHandler = (event) => {
+        if(event.target.value) {
+            setDisplay({element: displayRef.current.element, text: event.target.value});
+        } else {
+            setDisplay({element: displayRef.current.element, text: "New Container"});
+        }
+    }
+
+    const displayName = (event) => {
+        setDisplay({element: <h3 onClick={displayForm}>{displayRef.current.text}</h3>, text: displayRef.current.text});
+    }
+    
     return(<div
             id={id}
-            key={id.toString()}
             className="container"
             style={{
                 position: 'absolute',
@@ -83,36 +112,45 @@ function BasicContainer({id, xPos = 0, yPos = 0}) {
             }}
             draggable="true"
             onDragStart={drag_start}>
-        <h3>New Container</h3>
+        {displayRef.current.element}
     </div>);
 }
 
 function Home() {
-    const connectionsInit = [
-        {root: 1, connects: 2},
-        {root: 1, connects: 3},
-        {root: 2, connects: 3},
-        {root: 3, connects: 4},
-        {root: 4, connects: 1},
-    ];
-    const [connections, setConnections] = useState([]);
-    const connectionsRef = useRef({});
-    connectionsRef.current = connections;
+    const stateInit = {
+        history: [],
+        availableIDs: [],
+        containers: [],
+        connections: [],
+        lines: [],
+        tool: {
+            selected: 'Create/ Delete Connections',
+            data: null,
+            cursor: 'cell',
+        },
+    }
 
+    const [state, setState] = useState(stateInit);
+    const stateRef = useRef({});
+    stateRef.current = state;
+
+    useEffect(() => {
+        generateLines();
+    }, [stateRef.current.connections]);
+    
     function deleteConnections(ID) {
-        const newConnections = connectionsRef.current.reduce((acc, conn) => {
+        const newConnections = stateRef.current.connections.reduce((acc, conn) => {
             if ([conn.root, conn.connects].includes(ID)) {
                 return acc;
             }
             return [...acc, conn];
         }, []);
 
-        setConnections([...newConnections])
+        setState({...stateRef.current, connections: [...newConnections] } );
     }
     function createConnection(ID, targetID) {
-        
         let found = false;
-        const newConnections = connectionsRef.current.filter((conn) => {
+        const newConnections = stateRef.current.connections.filter((conn) => {
             const filter = (!([ID, targetID].includes(conn.root) && [ID, targetID].includes(conn.connects)));
             if(!filter) found = true;
             return filter;
@@ -124,20 +162,44 @@ function Home() {
                 connects: targetID
             };
     
-            setConnections([ ...connectionsRef.current, newConnection]);
+            setState({...stateRef.current, connections: [...stateRef.current.lines, newConnection] } );
         } else {
-            setConnections([...newConnections]);
+            setState({...stateRef.current, connections: [...newConnections] } );
         }
     }
-    function drawConnections() {
-        const canvasElement = document.getElementById("myCanvas");
-        const ctx = canvasElement.getContext("2d");
+    // function drawConnections() {
+    //     const canvasElement = document.getElementById("myCanvas");
+    //     const ctx = canvasElement.getContext("2d");
 
-        ctx.lineWidth = 4;
+    //     ctx.lineWidth = 4;
         
-        ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    //     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     
-        connections.forEach((connection) => {
+    //     stateRef.current.connections.forEach((connection) => {
+    //         const rootEl = document.getElementById(connection.root);    
+
+    //         const rootPos = findParentPos(rootEl);
+
+    //         const connEl = document.getElementById(connection.connects);
+
+    //         const connPos = findParentPos(connEl);
+
+    //         ctx.beginPath();
+    //         ctx.moveTo(
+    //             rootPos.left + (parseInt(rootEl.style.width,10) / 2),
+    //             rootPos.top + (parseInt(rootEl.style.height,10) / 2),
+    //         );
+    //         ctx.lineTo(
+    //             connPos.left + (parseInt(connEl.style.width,10) / 2),
+    //             connPos.top + (parseInt(connEl.style.height,10) / 2),
+    //         );
+    //         ctx.stroke();
+    //     });
+    // }
+
+    function generateLines() {
+        const newLines = stateRef.current.connections.map((connection) => {
+
             const rootEl = document.getElementById(connection.root);    
 
             const rootPos = findParentPos(rootEl);
@@ -146,51 +208,45 @@ function Home() {
 
             const connPos = findParentPos(connEl);
 
-            ctx.beginPath();
-            ctx.moveTo(
-                rootPos.left + (parseInt(rootEl.style.width,10) / 2),
-                rootPos.top + (parseInt(rootEl.style.height,10) / 2),
-            );
-            ctx.lineTo(
-                connPos.left + (parseInt(connEl.style.width,10) / 2),
-                connPos.top + (parseInt(connEl.style.height,10) / 2),
-            );
-            ctx.stroke();
-        });
-    }
-
-    useEffect(() => {
-        drawConnections();
-    });
-
-    const [history, setHistory] = useState([]);
-
-    const createNewEvent = (newEvent) => {
-        setHistory([...history, newEvent]);
-    }
-
-    function removeTargetConnections(id, targetId) {
-        const newConnections = connections.map((conn) => {
-            if(conn.root === id || conn.root === targetId) {
-                
-                return {
-                    root: conn.root,
-                    connects: conn.connects.reduce((acc, connEl) => {
-                        if(connEl === id || connEl === targetId) {
-                            return acc;
-                        } else {
-                            return [...acc, connEl];
-                        }
-                    }, [])
-                }
-                
-            } else {
-                return conn;
-            }
+            return(<line
+                x1={rootPos.left + (parseInt(rootEl.style.width,10) / 2)}
+                y1={rootPos.top + (parseInt(rootEl.style.height,10) / 2)}
+                x2={connPos.left + (parseInt(connEl.style.width,10) / 2)}
+                y2={connPos.top + (parseInt(connEl.style.height,10) / 2)}
+                stroke="black"
+                z-axis="5"
+            />);
         });
 
-        setConnections([...newConnections]);
+        setState({...stateRef.current, lines: newLines});
     }
+
+    function createNewEvent(newEvent) {
+        setState({...stateRef.current, history: [...stateRef.current.history, newEvent], });
+    }
+
+    // function removeTargetConnections(id, targetId) {
+    //     const newConnections = connections.map((conn) => {
+    //         if(conn.root === id || conn.root === targetId) {
+                
+    //             return {
+    //                 root: conn.root,
+    //                 connects: conn.connects.reduce((acc, connEl) => {
+    //                     if(connEl === id || connEl === targetId) {
+    //                         return acc;
+    //                     } else {
+    //                         return [...acc, connEl];
+    //                     }
+    //                 }, [])
+    //             }
+                
+    //         } else {
+    //             return conn;
+    //         }
+    //     });
+
+    //     setConnections([...newConnections]);
+    // }
 
     function moveContainer(container, target, xPos, yPos, manual = true) {
         if(manual) {
@@ -208,20 +264,21 @@ function Home() {
         
         let pOffset = findParentPos(target);
             
-        container.style.left = Math.max( (xPos - pOffset.left) , 0) + 'px';
-        container.style.top = Math.max( (yPos - pOffset.top) , 0) + 'px';
+        container.style.left = Math.max( (xPos - pOffset.left) , 11) + 'px';
+        container.style.top = Math.max( (yPos - pOffset.top) , 11) + 'px';
         
         container.style.zIndex = pOffset.depth;
 
-        if(container.children.length < 2) {
+        if(container.children.length === 1) {
             container.style.height = (50 / pOffset.depth) * 3 + 'px';
             container.style.width = (50 / pOffset.depth) * 6 + 'px';
         }
         
         container.remove();
         target.appendChild(container);
-    
-        drawConnections();
+        
+        generateLines();
+        // drawConnections();
     }
 
     function drop(event) {
@@ -241,13 +298,13 @@ function Home() {
             
             const childRightPos = parseInt(child.style.left,10) + parseInt(child.style.width,10);
 
-            if(childRightPos > parseInt(dropTarget.style.width,10)) {
+            if(childRightPos + 15 > parseInt(dropTarget.style.width,10)) {
                 dropTarget.style.width = childRightPos + 15 + 'px';
             }
 
             const childBottomPos = parseInt(child.style.top,10) + parseInt(child.style.height, 10);
 
-            if(childBottomPos > parseInt(dropTarget.style.height,10)) {
+            if(childBottomPos + 15 > parseInt(dropTarget.style.height,10)) {
                 dropTarget.style.height = childBottomPos + 15 + 'px'
             }
         }
@@ -256,30 +313,17 @@ function Home() {
         return false;
     }
 
-    
-    const containersInit = [...Array(4).keys()].map((num, index) => {
-        return <BasicContainer id={index + 1} xPos={index * 300} yPos={index * 10 + 25} />;
-    });
-
-    const [containers, setContainers] = useState([]);
-    const containersRef = useRef({});
-    containersRef.current = containers;
-
-    const [availableIDs, setAvailableIDs] = useState([]);
-    const availableIDsRef = useRef({});
-    availableIDsRef.current = availableIDs;
-
     const createContainer = (origin, target, event) => {
         let containerId
-        if(availableIDsRef.current.length > 0) {
-            containerId = availableIDsRef.current[0];
+        if(stateRef.current.availableIDs.length > 0) {
+            containerId = stateRef.current.availableIDs[0];
 
-            const newAvailableIDs = availableIDsRef.current.slice(1);
+            const newAvailableIDs = stateRef.current.availableIDs.slice(1);
 
-            setAvailableIDs([...newAvailableIDs]);
+            setState({...stateRef.current, availableIDs: [...newAvailableIDs],});
 
         } else {
-            containerId = containersRef.current.length + 1;
+            containerId = stateRef.current.containers.length + 1;
         }
  
         const newEvent = {
@@ -290,83 +334,141 @@ function Home() {
         }
         createNewEvent(newEvent);
 
-        const newContainer = <BasicContainer id={containerId} xPos={origin.pageX} yPos={origin.pageY} />
+        let newContainer = <BasicContainer id={containerId} xPos={origin.pageX} yPos={origin.pageY} />
 
-        setContainers([...containersRef.current, newContainer]);
+        setState({ ...stateRef.current, containers: [...stateRef.current.containers, newContainer]});
     }
 
     const deleteContainer = (origin, target, event) => {
         const targetId = parseInt(target.id,10);
 
-        if(targetId !== containers.length) {
-            setAvailableIDs([...availableIDsRef.current, targetId]);
+        if(targetId !== state.containers.length) {
+            setState({...stateRef.current, availableIDs: [...stateRef.current.availableIDs, targetId], });
         }
 
-        const newContainers = containersRef.current.filter((cont) => {
-            return (cont.props.id !== targetId);
-        });
+        const newContainers = stateRef.current.containers.filter((cont) => {
+            for(let p = document.getElementById(cont.props.id);
+                validTargets.includes(p.className);
+                p = p.parentElement) {
 
-        setContainers([...newContainers]);
+                if(p.id === targetId) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        console.log(newContainers);
+
+        setState({ ...stateRef.current, containers: newContainers });
 
         deleteConnections(targetId);
     }
 
-    const setToolHandler = (origin, target, event) => {
-        setCurrentTool({tool: event.target.innerText, data: null});
+    const editContainerText = (origin, target, event) => {
+        for(let child of target.children) {
+            if(child.tagName.toLowerCase() === "h3") {
+                
+            }
+        }
+
+        // console.log(origin, target, event);
     }
 
-    const connectionsTool = (event, target) => {
-        if(currentToolRef.current.data !== null) {
-            
-            if(currentToolRef.current.data === target) {
-                currentToolRef.current.data.style.backgroundColor = '';
+    const setToolHandler = (origin, target, event) => {
+        setState({...stateRef.current, tool: {...stateRef.current.tool, selected: event.target.innerText, data: null}});
+    }
+
+    useEffect(() => {
+        // console.log(stateRef.current);
+        
+    }, [stateRef.current]);
+
+    const connectionsTool = (origin, target, event) => {
+        if(stateRef.current.tool.data !== null) {    
+            if(stateRef.current.tool.data !== target) {
+                console.log(stateRef.current.tool)
+                console.log("creating connection!");
+                createConnection(parseInt(target.id, 10), parseInt(stateRef.current.tool.data.id, 10));
                 
-                setCurrentTool({tool: 'Create/ Delete Connections', data: null});
-
-            } else {
-                currentToolRef.current.data.style.backgroundColor = '';
-
-                createConnection(parseInt(target.id, 10), parseInt(currentToolRef.current.data.id, 10));
-
-                setCurrentTool({tool: 'Create/ Delete Connections', data: null});
             }
+            stateRef.current.tool.data.style.backgroundColor = '';
+            target.style.backgroundColor = '';
+
+            const newState = {
+                ...stateRef.current,
+                tool: {
+                    ...stateRef.current.tool,
+                    data: null
+                },
+            }
+            setState(newState);
+
         } else {
-            setCurrentTool({tool: 'Create/ Delete Connections', data: target});
+            console.log("selecting first element!")
+            setState({
+                ...stateRef.current,
+                tool: {
+                    ...stateRef.current.tool,
+                    selected: 'Create/ Delete Connections',
+                    data: target},
+                });
             target.style.backgroundColor = 'white';
         }
     }
-
-    const [currentTool, setCurrentTool] = useState({tool: "None", data: null});
-    const currentToolRef = useRef({});
-    currentToolRef.current = currentTool;
 
     window.addEventListener("DOMContentLoaded", () => {
         document.addEventListener('keydown', (event) => {
             console.log(`Key: ${event.key} with keycode ${event.keyCode} has been pressed`);
         });
 
+        document.addEventListener('mouseover', (event) => {
+            const target = findValidContainer(event.target);
+
+            let newCursor = '';
+            switch(stateRef.current.tool.selected) {
+                case 'Create/ Delete Connections':
+                    newCursor = 'cell';
+                    break;
+                case 'Create Containers':
+                    newCursor = 'copy';
+                    break;
+                case 'Delete':
+                    newCursor = 'alias';
+                    break;
+            }
+
+            setState({
+                ...stateRef.current,
+                tool: {
+                    ...stateRef.current.tool,
+                    cursor: newCursor,
+                }
+            });
+        });
+
         document.addEventListener('click', (event) => {
             const target = findValidContainer(event.target);
 
             if(target) {
-                switch(currentToolRef.current.tool) {
+                switch(stateRef.current.tool.selected) {
                     case 'Create/ Delete Connections':
                         connectionsTool(event, target);
                         break;
                     case 'Create Containers':
-                        console.log('Create Containers');
+                        createContainer(event, target);
                         break;
                     case 'Delete':
-                        console.log('Delete');
+                        deleteContainer(event, target);
                         break;
+                    default:
+                        console.log("No tool selected!");
                 }
             }
 
         });
     });
 
-    const buttons = 
-        {"work-space": [
+    const buttons = {"work-space": [
             {text: 'Select Tool >', function: [
                 {text: 'None', function: setToolHandler},
                 {text: 'Create/ Delete Connections', function: setToolHandler},
@@ -377,41 +479,46 @@ function Home() {
             {text: 'Edit Design >', function: [
                 {text: "Edit Colors",
                 function: () => {console.log("Edit WorkSpace Colors")}
-                }
+                },
             ]},
         ],
         "container": [
             {text: "Delete Container", function: deleteContainer},
             {text: "Edit Container >", function: [
                 {text: "Edit Text",
-                function: () => {console.log("Edit Container Text")}
-                },
+                function: editContainerText},
                 {text: "Edit Colors",
                 function: () => {console.log("Edit Container Colors")}
-                }
+                },
             ]},
-            {text: "Edit Connections", function: () => console.log("Edit Connections")},
-            {text: "Create Container", function: () => {console.log("Create Embedded Container")}}
+            {text: "Create Container", function: createContainer}
         ]};
 
-    return(
-        <section id='0' className="work-space"
+    return(<section id='0' className="work-space"
             style={{
                 left: '0px',
                 top: '0px',
-                height: '1500px',
-                width: '1500px',}}
+                cursor: stateRef.current.tool.cursor,
+            }}
             onDrop={drop}
             onDragOver={drag_over}>
 
-            {/*  Use this to set cursor for different tools*/}
-            {/* <style></style> */}
+                <svg zAxis="5">
+                    {state.lines}
+                </svg>
+        
+                <button
+                    class="download-button"
+                    href="../public/index.html"
+                    download>
+                        Download Layout
+                </button>
 
-            <ContextMenuGenerator buttons={buttons} />
-            {containers}
-            <canvas id="myCanvas" width="1500px" height="1500px"/>
+                <ContextMenuGenerator buttons={buttons} />
+                {state.containers}
+                {/* <canvas id="myCanvas" zIndex='3' /> */}
 
-        </section>);
+            </section>);
 }
 
 export default Home;

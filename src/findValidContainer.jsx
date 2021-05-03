@@ -6,7 +6,7 @@ export default function createValidator(validTargets) {
         
         for(
             var p = target;
-            invalids < 2;
+            invalids < 3;
             p = p.parentElement
             ) {
                 if(p === null) return null;
