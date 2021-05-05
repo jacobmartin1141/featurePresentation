@@ -5,8 +5,8 @@ import React, {
 } from 'react';
 
 function About() {
-    return(<section>
-        
+    return(<section class="page">
+        <a href="/app">Go to app</a>
     </section>)
 }
 

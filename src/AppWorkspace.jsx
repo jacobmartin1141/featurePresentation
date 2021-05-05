@@ -30,7 +30,8 @@ function findParentPos(target) {
         
         result.left += parseInt(p.style.left,10);
         result.top += parseInt(p.style.top,10);
-
+        
+        // console.log(p);
         p = p.parentElement;
     }
 
@@ -72,11 +73,13 @@ function BasicContainer({id, xPos = 0, yPos = 0}) {
     const displayForm = () => {
         setDisplay({element: <form onClick={displayName}>
             <textarea
+                width="300px"
+                height="150px"
                 id='name'
                 name='name'
                 onChange={changeHandler}
-                autoFocus='true'
-                required='true'
+                autoFocus={true}
+                required={true}
                 placeholder='Click to save text'
             ></textarea>
         </form>, text: displayRef.current.text});
@@ -108,20 +111,43 @@ function BasicContainer({id, xPos = 0, yPos = 0}) {
                 top: yPos + 'px',
                 height: '150px',
                 width: '300px',
-                zIndex: '0',
+                zIndex: '1',
             }}
-            draggable="true"
+            draggable={true}
             onDragStart={drag_start}>
         {displayRef.current.element}
     </div>);
+}
+
+function BasicLine({rootEl, connEl}) {
+    const rootPos = findParentPos(rootEl);   
+    const connPos = findParentPos(connEl);
+
+    return(<line
+        x1={rootPos.left + (parseInt(rootEl.style.width,10) / 2)}
+        y1={rootPos.top + (parseInt(rootEl.style.height,10) / 2)}
+        x2={connPos.left + (parseInt(connEl.style.width,10) / 2)}
+        y2={connPos.top + (parseInt(connEl.style.height,10) / 2)}
+        stroke="black"
+        strokeWidth='0.2vh'
+    />);
 }
 
 function Home() {
     const stateInit = {
         history: [],
         availableIDs: [],
-        containers: [],
-        connections: [],
+        containers: [
+            <BasicContainer id={1} xPos={100} yPos={120}/>,
+            <BasicContainer id={2} xPos={400} yPos={400}/>,
+        ],
+        connections: [
+            {root: 1,
+            connects: 2,},
+        ],
+        layers: [
+            [],
+        ],
         lines: [],
         tool: {
             selected: 'Create/ Delete Connections',
@@ -133,11 +159,11 @@ function Home() {
     const [state, setState] = useState(stateInit);
     const stateRef = useRef({});
     stateRef.current = state;
-
+    
     useEffect(() => {
         generateLines();
     }, [stateRef.current.connections]);
-    
+
     function deleteConnections(ID) {
         const newConnections = stateRef.current.connections.reduce((acc, conn) => {
             if ([conn.root, conn.connects].includes(ID)) {
@@ -156,13 +182,14 @@ function Home() {
             return filter;
         });
 
+        
         if(!found) {
             const newConnection = {
                 root: ID,
                 connects: targetID
             };
-    
-            setState({...stateRef.current, connections: [...stateRef.current.lines, newConnection] } );
+            
+            setState({...stateRef.current, connections: [...stateRef.current.connections, newConnection] } );
         } else {
             setState({...stateRef.current, connections: [...newConnections] } );
         }
@@ -198,27 +225,38 @@ function Home() {
     // }
 
     function generateLines() {
-        const newLines = stateRef.current.connections.map((connection) => {
+        let newLines = [];
 
-            const rootEl = document.getElementById(connection.root);    
-
-            const rootPos = findParentPos(rootEl);
-
+        stateRef.current.connections.forEach((connection) => {
+            
+            const rootEl = document.getElementById(connection.root);
             const connEl = document.getElementById(connection.connects);
+            
+            // const rootPos = findParentPos(rootEl);
+            // const connPos = findParentPos(connEl);
+            
+            // const newLine = (<line
+            //     x1={rootPos.left + (parseInt(rootEl.style.width,10) / 2)}
+            //     y1={rootPos.top + (parseInt(rootEl.style.height,10) / 2)}
+            //     x2={connPos.left + (parseInt(connEl.style.width,10) / 2)}
+            //     y2={connPos.top + (parseInt(connEl.style.height,10) / 2)}
+            //     stroke="black"
+            //     strokeWidth='0.2vh'
+            // />);
 
-            const connPos = findParentPos(connEl);
+            const newLine = <BasicLine rootEl={rootEl} connEl={connEl}/>
 
-            return(<line
-                x1={rootPos.left + (parseInt(rootEl.style.width,10) / 2)}
-                y1={rootPos.top + (parseInt(rootEl.style.height,10) / 2)}
-                x2={connPos.left + (parseInt(connEl.style.width,10) / 2)}
-                y2={connPos.top + (parseInt(connEl.style.height,10) / 2)}
-                stroke="black"
-                z-axis="5"
-            />);
+            const layer = parseInt(rootEl.style.zIndex,10) - 1;
+            if(newLines[layer] !== undefined) {
+                
+                newLines[layer] = [...newLines[layer], newLine];
+            } else {
+                
+                newLines.push([newLine]);
+            }
         });
 
-        setState({...stateRef.current, lines: newLines});
+        setState({...stateRef.current, layers: newLines});
     }
 
     function createNewEvent(newEvent) {
@@ -267,13 +305,28 @@ function Home() {
         container.style.left = Math.max( (xPos - pOffset.left) , 11) + 'px';
         container.style.top = Math.max( (yPos - pOffset.top) , 11) + 'px';
         
-        container.style.zIndex = pOffset.depth;
+        container.style.zIndex = (pOffset.depth * 2) - 1;
+
+        console.log(container.style.zIndex);
 
         if(container.children.length === 1) {
             container.style.height = (50 / pOffset.depth) * 3 + 'px';
             container.style.width = (50 / pOffset.depth) * 6 + 'px';
+            container.style.fontSize = (5 / pOffset.depth) * 4 + 'px';
         }
         
+        
+        const childRightPos = parseInt(container.style.left,10) + parseInt(container.style.width,10);
+        if(childRightPos + 15 > parseInt(target.style.width,10)) {
+            target.style.width = childRightPos + 15 + 'px';
+        }
+
+        const childBottomPos = parseInt(container.style.top,10) + parseInt(container.style.height, 10);
+        if(childBottomPos + 15 > parseInt(target.style.height,10)) {
+            target.style.height = childBottomPos + 15 + 'px'
+        }
+
+
         container.remove();
         target.appendChild(container);
         
@@ -293,21 +346,6 @@ function Home() {
         moveContainer(dm, dropTarget, (event.pageX + parseInt(offset[0],10)), (event.pageY + parseInt(offset[1],10)));
 
         dm.style.display = "";
-        
-        for(let child of dropTarget.children) {
-            
-            const childRightPos = parseInt(child.style.left,10) + parseInt(child.style.width,10);
-
-            if(childRightPos + 15 > parseInt(dropTarget.style.width,10)) {
-                dropTarget.style.width = childRightPos + 15 + 'px';
-            }
-
-            const childBottomPos = parseInt(child.style.top,10) + parseInt(child.style.height, 10);
-
-            if(childBottomPos + 15 > parseInt(dropTarget.style.height,10)) {
-                dropTarget.style.height = childBottomPos + 15 + 'px'
-            }
-        }
 
         event.preventDefault();
         return false;
@@ -378,11 +416,6 @@ function Home() {
         setState({...stateRef.current, tool: {...stateRef.current.tool, selected: event.target.innerText, data: null}});
     }
 
-    useEffect(() => {
-        // console.log(stateRef.current);
-        
-    }, [stateRef.current]);
-
     const connectionsTool = (origin, target, event) => {
         if(stateRef.current.tool.data !== null) {    
             if(stateRef.current.tool.data !== target) {
@@ -391,7 +424,6 @@ function Home() {
                 createConnection(parseInt(target.id, 10), parseInt(stateRef.current.tool.data.id, 10));
                 
             }
-            stateRef.current.tool.data.style.backgroundColor = '';
             target.style.backgroundColor = '';
 
             const newState = {
@@ -404,15 +436,18 @@ function Home() {
             setState(newState);
 
         } else {
-            console.log("selecting first element!")
-            setState({
-                ...stateRef.current,
-                tool: {
-                    ...stateRef.current.tool,
-                    selected: 'Create/ Delete Connections',
-                    data: target},
-                });
-            target.style.backgroundColor = 'white';
+            if(target.className == 'container') {
+                
+                console.log("selecting first element!")
+                setState({
+                    ...stateRef.current,
+                    tool: {
+                        ...stateRef.current.tool,
+                        selected: 'Create/ Delete Connections',
+                        data: target},
+                    });
+                target.style.backgroundColor = 'white';
+            }
         }
     }
 
@@ -451,6 +486,8 @@ function Home() {
 
             if(target) {
                 switch(stateRef.current.tool.selected) {
+                    default:
+                        console.log("No tool selected!");
                     case 'Create/ Delete Connections':
                         connectionsTool(event, target);
                         break;
@@ -460,8 +497,6 @@ function Home() {
                     case 'Delete':
                         deleteContainer(event, target);
                         break;
-                    default:
-                        console.log("No tool selected!");
                 }
             }
 
@@ -492,33 +527,56 @@ function Home() {
                 },
             ]},
             {text: "Create Container", function: createContainer}
-        ]};
+    ]};
+    
+    const lineLayers = stateRef.current.layers.map((layer, index) => {
+        return <svg style={{
+            zIndex: (index + 1 * 2) - 1,
+        }}>
+            {layer}
+        </svg>
+    });
 
+    useEffect(() => {
+        console.log(stateRef.current.layers);
+        console.log(lineLayers);
+    }, [stateRef.current.layers]);
+    
     return(<section id='0' className="work-space"
-            style={{
-                left: '0px',
-                top: '0px',
-                cursor: stateRef.current.tool.cursor,
-            }}
-            onDrop={drop}
-            onDragOver={drag_over}>
+        style={{
+            left: '0px',
+            top: '0px',
+            cursor: stateRef.current.tool.cursor,
+        }}
+        onDrop={drop}
+        onDragOver={drag_over}>
 
-                <svg zAxis="5">
-                    {state.lines}
-                </svg>
-        
+            <div className="scb right"/>
+            <div className="scb left"/>
+
+            <div className="scb top">
+                <a href="/">Go Home</a>
+            </div>
+            <div className="scb bottom">
                 <button
-                    class="download-button"
                     href="../public/index.html"
                     download>
                         Download Layout
                 </button>
+                <button
+                    href="../public/index.html"
+                    download>
+                        Save Layout
+                </button>
+            </div>
+    
+            {lineLayers}
+            {state.containers}
+            
+            <ContextMenuGenerator buttons={buttons} />
 
-                <ContextMenuGenerator buttons={buttons} />
-                {state.containers}
-                {/* <canvas id="myCanvas" zIndex='3' /> */}
-
-            </section>);
+            {/* <canvas id="myCanvas" zIndex='3' /> */}
+    </section>);
 }
 
 export default Home;
