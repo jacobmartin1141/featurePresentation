@@ -231,18 +231,6 @@ function Home() {
             
             const rootEl = document.getElementById(connection.root);
             const connEl = document.getElementById(connection.connects);
-            
-            // const rootPos = findParentPos(rootEl);
-            // const connPos = findParentPos(connEl);
-            
-            // const newLine = (<line
-            //     x1={rootPos.left + (parseInt(rootEl.style.width,10) / 2)}
-            //     y1={rootPos.top + (parseInt(rootEl.style.height,10) / 2)}
-            //     x2={connPos.left + (parseInt(connEl.style.width,10) / 2)}
-            //     y2={connPos.top + (parseInt(connEl.style.height,10) / 2)}
-            //     stroke="black"
-            //     strokeWidth='0.2vh'
-            // />);
 
             const newLine = <BasicLine rootEl={rootEl} connEl={connEl}/>
 
@@ -531,7 +519,7 @@ function Home() {
     
     const lineLayers = stateRef.current.layers.map((layer, index) => {
         return <svg style={{
-            zIndex: (index + 1 * 2) - 1,
+            zIndex: (index * 2),
         }}>
             {layer}
         </svg>

@@ -58,14 +58,14 @@ code {
 }
 
 .container h3 {
-  margin-top: 0px;
+  margin-top: 0;
   padding: 1px 2px 1px 2px;
   width: fit-content;
   margin: 0 auto;
 }
 
 .container h3:hover {
-  background-color: rgb(235, 235, 235);
+  background-color: rgb(247, 176, 45);
 }
 
 /* Workspace setup */
