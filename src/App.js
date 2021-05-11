@@ -4,6 +4,8 @@ import {
   Route,
 } from "react-router-dom";
 
+import Header from './Header';
+
 import AppWorkspace from './AppWorkspace';
 import About from './About';
 
@@ -11,6 +13,7 @@ function App() {
   return (
     <Router>
       <Route exact path="/">
+        <Header />
         <About />
       
       </Route>

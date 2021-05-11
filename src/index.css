@@ -14,6 +14,10 @@ code {
 
 /* PAGES */
 
+.page-header {
+  display: flex;
+}
+
 .page {
   display: flex;
 }
@@ -44,55 +48,53 @@ code {
 }
 
 /* Containers */
-.container {
+.box {
   background-color: rgb(255, 196, 87);
   border-style: solid;
   text-align:center;
   padding: 15px 15px 15px 15px;
   cursor: '';
+  /* overflow:scroll; */
 }
 
-.container textarea{
+.box textarea{
   text-align:center;
-  font-size: 2vh;
+  font-size:inherit;
 }
 
-.container h3 {
+.box h3 {
   margin-top: 0;
   padding: 1px 2px 1px 2px;
   width: fit-content;
   margin: 0 auto;
 }
 
-.container h3:hover {
+.box h3:hover {
   background-color: rgb(247, 176, 45);
 }
 
 /* Workspace setup */
 .work-space {
-  background: repeating-linear-gradient(#8be7b4, #8be7b4 60px, #326b40 60px, #326b40 61px);
+  background: #8be7b4;
+  overflow:scroll;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 94.6vh;
   padding: 1vh, 1vh, 1vh, 1vh;
 }
 
-canvas {
-  width: 100%;
-  height: 100%;
-}
-
 svg {
-  position:absolute;
+  position:fixed;
   left: 0px;
   top: 0px;
-  width: 100%;
-  height: 100%;
   pointer-events: none;
 }
 
 button {
   font-size: 1.5vh;
-  margin: 0.2vh 0.2vh;
+  margin: 0.2vh 0.2vh 0.2vh 0.2vh;
   padding: 1vh 1vh 1vh 1vh;
   z-index: 10;
 }
@@ -105,30 +107,10 @@ button {
 }
 
 .bottom {
-  bottom: 0;
+  bottom: 0vh;
   height: 5vh;
-  left: 1vw;
-  width: 98vw;
+  width: 100vw;
   border-top: solid;
   display: flex;
-}
-
-.top {
-  left: 1vw;
-  width: 98vw;
-  height: 7vh;
-  border-bottom: solid;
-}
-
-.left {
-  height: 100vh;
-  width: 1vw;
-  border-right: solid;
-}
-
-.right {
-  right: 0;
-  height: 100vh;
-  width: 1vw;
-  border-left: solid;
+  font-size: 1.5vh;
 }

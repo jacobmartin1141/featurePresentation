@@ -94,13 +94,15 @@ function ContextMenuGenerator({buttons, active}) {
 
             const target = findValidContainer(event.target);
 
+            const workSpace = document.getElementById('0');
+
             if(target) {
                 setMenus([<ContextMenu
                     key={menusRef.current.length}
                     id={menusRef.current.length}
                     buttons={buttons[target.className]}
-                    xPos={event.pageX}
-                    yPos={event.pageY}
+                    xPos={event.pageX + workSpace.scrollLeft}
+                    yPos={event.pageY + workSpace.scrollTop}
                     expandMenuHandler={expandMenuHandler}
                     event={event}
                     target={target}

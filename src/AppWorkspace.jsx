@@ -9,7 +9,7 @@ import ContextMenuGenerator from './ContextMenu';
 import createValidator from './findValidContainer';
 
 const validTargets = [
-    "container",
+    "box",
     "work-space",
 ];
 const findValidContainer = createValidator(validTargets);
@@ -104,7 +104,7 @@ function BasicContainer({id, xPos = 0, yPos = 0}) {
     
     return(<div
             id={id}
-            className="container"
+            className="box"
             style={{
                 position: 'absolute',
                 left: xPos + 'px',
@@ -139,23 +139,20 @@ function Home() {
         availableIDs: [],
         containers: [
             <BasicContainer id={1} xPos={100} yPos={120}/>,
-            <BasicContainer id={2} xPos={400} yPos={400}/>,
+            <BasicContainer id={2} xPos={200} yPos={400}/>,
         ],
         connections: [
             {root: 1,
             connects: 2,},
         ],
-        layers: [
-            [],
-        ],
         lines: [],
+        displayLines: [],
         tool: {
             selected: 'Create/ Delete Connections',
             data: null,
             cursor: 'cell',
         },
     }
-
     const [state, setState] = useState(stateInit);
     const stateRef = useRef({});
     stateRef.current = state;
@@ -234,45 +231,53 @@ function Home() {
 
             const newLine = <BasicLine rootEl={rootEl} connEl={connEl}/>
 
+            
+            const rootPos = findParentPos(rootEl);   
+            const connPos = findParentPos(connEl);
+
+            const bottom = Math.max(
+                connPos.top + (parseInt(connEl.style.height,10) / 2),
+                rootPos.top + (parseInt(rootEl.style.height,10) / 2)
+            );
+            const right = Math.max(
+                connPos.left + (parseInt(connEl.style.width,10) / 2),
+                rootPos.left + (parseInt(rootEl.style.width,10) / 2)
+            );
+
             const layer = parseInt(rootEl.style.zIndex,10) - 1;
             if(newLines[layer] !== undefined) {
-                
-                newLines[layer] = [...newLines[layer], newLine];
+
+                newLines[layer] = {
+                    right: Math.max(right, newLines[layer].right),
+                    height: Math.max(bottom, newLines[layer].height),
+                    lines: [...newLines[layer].lines, newLine],
+                };
             } else {
                 
-                newLines.push([newLine]);
+                newLines = [...newLines, {lines: [newLine], height: bottom, right: right }];
             }
         });
 
-        setState({...stateRef.current, layers: newLines});
+        const displayLines = newLines.map((layer, index) => {
+            return <svg
+            style={{
+                position: 'absolute',
+                zIndex: (index * 2),
+                width: layer.right + 'px',
+                height: layer.height + 'px',
+                left: '0px',
+                top: '0px',
+            }}>
+                {layer.lines}
+            </svg>
+        });
+        
+        setState({...stateRef.current, displayLines: displayLines});
     }
 
     function createNewEvent(newEvent) {
         setState({...stateRef.current, history: [...stateRef.current.history, newEvent], });
     }
-
-    // function removeTargetConnections(id, targetId) {
-    //     const newConnections = connections.map((conn) => {
-    //         if(conn.root === id || conn.root === targetId) {
-                
-    //             return {
-    //                 root: conn.root,
-    //                 connects: conn.connects.reduce((acc, connEl) => {
-    //                     if(connEl === id || connEl === targetId) {
-    //                         return acc;
-    //                     } else {
-    //                         return [...acc, connEl];
-    //                     }
-    //                 }, [])
-    //             }
-                
-    //         } else {
-    //             return conn;
-    //         }
-    //     });
-
-    //     setConnections([...newConnections]);
-    // }
 
     function moveContainer(container, target, xPos, yPos, manual = true) {
         if(manual) {
@@ -401,7 +406,20 @@ function Home() {
     }
 
     const setToolHandler = (origin, target, event) => {
-        setState({...stateRef.current, tool: {...stateRef.current.tool, selected: event.target.innerText, data: null}});
+        let newCursor = '';
+            switch(event.target.innerText) {
+                case 'Create/ Delete Connections':
+                    newCursor = 'cell';
+                    break;
+                case 'Create Containers':
+                    newCursor = 'copy';
+                    break;
+                case 'Delete':
+                    newCursor = 'alias';
+                    break;
+        }
+
+        setState({...stateRef.current, tool: {...stateRef.current.tool, selected: event.target.innerText, data: null, cursor: newCursor}});
     }
 
     const connectionsTool = (origin, target, event) => {
@@ -424,7 +442,7 @@ function Home() {
             setState(newState);
 
         } else {
-            if(target.className == 'container') {
+            if(target.className == 'box') {
                 
                 console.log("selecting first element!")
                 setState({
@@ -442,31 +460,6 @@ function Home() {
     window.addEventListener("DOMContentLoaded", () => {
         document.addEventListener('keydown', (event) => {
             console.log(`Key: ${event.key} with keycode ${event.keyCode} has been pressed`);
-        });
-
-        document.addEventListener('mouseover', (event) => {
-            const target = findValidContainer(event.target);
-
-            let newCursor = '';
-            switch(stateRef.current.tool.selected) {
-                case 'Create/ Delete Connections':
-                    newCursor = 'cell';
-                    break;
-                case 'Create Containers':
-                    newCursor = 'copy';
-                    break;
-                case 'Delete':
-                    newCursor = 'alias';
-                    break;
-            }
-
-            setState({
-                ...stateRef.current,
-                tool: {
-                    ...stateRef.current.tool,
-                    cursor: newCursor,
-                }
-            });
         });
 
         document.addEventListener('click', (event) => {
@@ -517,19 +510,6 @@ function Home() {
             {text: "Create Container", function: createContainer}
     ]};
     
-    const lineLayers = stateRef.current.layers.map((layer, index) => {
-        return <svg style={{
-            zIndex: (index * 2),
-        }}>
-            {layer}
-        </svg>
-    });
-
-    useEffect(() => {
-        console.log(stateRef.current.layers);
-        console.log(lineLayers);
-    }, [stateRef.current.layers]);
-    
     return(<section id='0' className="work-space"
         style={{
             left: '0px',
@@ -539,12 +519,6 @@ function Home() {
         onDrop={drop}
         onDragOver={drag_over}>
 
-            <div className="scb right"/>
-            <div className="scb left"/>
-
-            <div className="scb top">
-                <a href="/">Go Home</a>
-            </div>
             <div className="scb bottom">
                 <button
                     href="../public/index.html"
@@ -556,9 +530,13 @@ function Home() {
                     download>
                         Save Layout
                 </button>
+                <button
+                    >
+                    Go Home
+                </button>
             </div>
     
-            {lineLayers}
+            {state.displayLines}
             {state.containers}
             
             <ContextMenuGenerator buttons={buttons} />
