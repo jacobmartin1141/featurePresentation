@@ -7,7 +7,7 @@ import createValidator from './findValidContainer';
 
 const validTargets = [
     "work-space",
-    "container",
+    "box",
 ];
 const findValidContainer = createValidator(validTargets);
 

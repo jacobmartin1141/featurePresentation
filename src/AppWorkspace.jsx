@@ -58,7 +58,7 @@ function drag_over(event) {
     dropTarget = findValidContainer(event.target);
 
     if(dropTarget) {
-        // dm.style.display = "none";
+        dm.style.display = "none";
 
         if(dropTarget !== dm) {
             event.preventDefault(); 
@@ -80,7 +80,7 @@ function BasicContainer({id, xPos = 0, yPos = 0}) {
                 onChange={changeHandler}
                 autoFocus={true}
                 required={true}
-                placeholder='Click to save text'
+                placeholder='Click to Save'
             ></textarea>
         </form>, text: displayRef.current.text});
     }
@@ -162,14 +162,16 @@ function Home() {
     }, [stateRef.current.connections]);
 
     function deleteConnections(ID) {
-        const newConnections = stateRef.current.connections.reduce((acc, conn) => {
+        const newConnections = stateRef.current.connections.filter((conn) => {
+            console.log(ID, conn, [conn.root, conn.connects].includes(ID));
             if ([conn.root, conn.connects].includes(ID)) {
-                return acc;
+                return false;
             }
-            return [...acc, conn];
+            return true;
         }, []);
 
         setState({...stateRef.current, connections: [...newConnections] } );
+        generateLines();
     }
     function createConnection(ID, targetID) {
         let found = false;
@@ -300,7 +302,7 @@ function Home() {
         
         container.style.zIndex = (pOffset.depth * 2) - 1;
 
-        console.log(container.style.zIndex);
+        // console.log(container.style.zIndex);
 
         if(container.children.length === 1) {
             container.style.height = (50 / pOffset.depth) * 3 + 'px';
@@ -345,11 +347,12 @@ function Home() {
     }
 
     const createContainer = (origin, target, event) => {
+        let newAvailableIDs = [];
         let containerId
         if(stateRef.current.availableIDs.length > 0) {
             containerId = stateRef.current.availableIDs[0];
 
-            const newAvailableIDs = stateRef.current.availableIDs.slice(1);
+            newAvailableIDs = stateRef.current.availableIDs.slice(1);
 
             setState({...stateRef.current, availableIDs: [...newAvailableIDs],});
 
@@ -367,32 +370,50 @@ function Home() {
 
         let newContainer = <BasicContainer id={containerId} xPos={origin.pageX} yPos={origin.pageY} />
 
-        setState({ ...stateRef.current, containers: [...stateRef.current.containers, newContainer]});
+        setState({
+            ...stateRef.current,
+            containers: [...stateRef.current.containers, newContainer],
+            availableIDs: newAvailableIDs,
+        });
     }
 
     const deleteContainer = (origin, target, event) => {
         const targetId = parseInt(target.id,10);
 
-        if(targetId !== state.containers.length) {
-            setState({...stateRef.current, availableIDs: [...stateRef.current.availableIDs, targetId], });
-        }
-
         const newContainers = stateRef.current.containers.filter((cont) => {
             for(let p = document.getElementById(cont.props.id);
-                validTargets.includes(p.className);
-                p = p.parentElement) {
+            validTargets.includes(p.className);
+            p = p.parentElement) {
 
                 if(p.id === targetId) {
-                    return true;
+                    return false;
                 }
             }
-            return false;
+            return true;
         });
-        console.log(newContainers);
 
-        setState({ ...stateRef.current, containers: newContainers });
+        const newConnections = stateRef.current.connections.filter((conn) => {
+            if ([conn.root, conn.connects].includes(targetId)) {
+                return false;
+            }
+            return true;
+        }, []);
 
-        deleteConnections(targetId);
+        
+        if(targetId !== stateRef.current.containers.length) {
+            setState({
+                ...stateRef.current,
+                availableIDs: [...stateRef.current.availableIDs, targetId],
+                containers: newContainers,
+                connections: [...newConnections] 
+            });
+        } else {
+            setState({
+                ...stateRef.current,
+                containers: newContainers,
+                connections: [...newConnections]
+            });
+        }
     }
 
     const editContainerText = (origin, target, event) => {
@@ -406,7 +427,7 @@ function Home() {
     }
 
     const setToolHandler = (origin, target, event) => {
-        let newCursor = '';
+        let newCursor;
             switch(event.target.innerText) {
                 case 'Create/ Delete Connections':
                     newCursor = 'cell';
@@ -417,33 +438,34 @@ function Home() {
                 case 'Delete':
                     newCursor = 'alias';
                     break;
+                default:
+                    newCursor = '';
         }
 
         setState({...stateRef.current, tool: {...stateRef.current.tool, selected: event.target.innerText, data: null, cursor: newCursor}});
     }
 
     const connectionsTool = (origin, target, event) => {
-        if(stateRef.current.tool.data !== null) {    
-            if(stateRef.current.tool.data !== target) {
-                console.log(stateRef.current.tool)
-                console.log("creating connection!");
-                createConnection(parseInt(target.id, 10), parseInt(stateRef.current.tool.data.id, 10));
-                
-            }
-            target.style.backgroundColor = '';
-
-            const newState = {
-                ...stateRef.current,
-                tool: {
-                    ...stateRef.current.tool,
-                    data: null
-                },
-            }
-            setState(newState);
-
-        } else {
-            if(target.className == 'box') {
-                
+        if(target.className === 'box') {
+            if(stateRef.current.tool.data !== null) {   
+                if(stateRef.current.tool.data !== target) {
+                    console.log(stateRef.current.tool)
+                    console.log("creating connection!");
+                    createConnection(parseInt(target.id, 10), parseInt(stateRef.current.tool.data.id, 10));
+                    
+                }
+                target.style.backgroundColor = '';
+    
+                const newState = {
+                    ...stateRef.current,
+                    tool: {
+                        ...stateRef.current.tool,
+                        data: null
+                    },
+                }
+                setState(newState);
+            
+            } else {
                 console.log("selecting first element!")
                 setState({
                     ...stateRef.current,
@@ -467,8 +489,6 @@ function Home() {
 
             if(target) {
                 switch(stateRef.current.tool.selected) {
-                    default:
-                        console.log("No tool selected!");
                     case 'Create/ Delete Connections':
                         connectionsTool(event, target);
                         break;
@@ -478,6 +498,8 @@ function Home() {
                     case 'Delete':
                         deleteContainer(event, target);
                         break;
+                    default:
+                        console.log("No tool selected!");
                 }
             }
 
@@ -498,7 +520,7 @@ function Home() {
                 },
             ]},
         ],
-        "container": [
+        "box": [
             {text: "Delete Container", function: deleteContainer},
             {text: "Edit Container >", function: [
                 {text: "Edit Text",
@@ -510,7 +532,13 @@ function Home() {
             {text: "Create Container", function: createContainer}
     ]};
     
-    return(<section id='0' className="work-space"
+    const exitHandler = (event) => {
+        if(window.confirm("Are you sure you want to exit? All unsaved progress will be lost!")) {
+            window.location.href='/';
+        }
+    }
+
+    return(<div id='0' className="work-space"
         style={{
             left: '0px',
             top: '0px',
@@ -519,21 +547,29 @@ function Home() {
         onDrop={drop}
         onDragOver={drag_over}>
 
-            <div className="scb bottom">
-                <button
-                    href="../public/index.html"
-                    download>
-                        Download Layout
-                </button>
-                <button
-                    href="../public/index.html"
-                    download>
-                        Save Layout
-                </button>
-                <button
-                    >
-                    Go Home
-                </button>
+            <div className="scb bottom container-fluid">
+                {/* <div class="container-xl"> */}
+                    <div class="row d-flex justify-content-between">
+                        <button
+                            href="../public/index.html"
+                            download
+                            class="col-3">
+                                Download Layout
+                        </button>
+                        <button
+                            href="../public/index.html"
+                            download
+                            class="col-3">
+                                Save Layout
+                        </button>
+                        <div class="col-3"/>
+                        <button
+                            onClick={exitHandler}
+                            class="col-2">
+                            Exit App
+                        </button>
+                    </div>
+                {/* </div> */}
             </div>
     
             {state.displayLines}
@@ -542,7 +578,7 @@ function Home() {
             <ContextMenuGenerator buttons={buttons} />
 
             {/* <canvas id="myCanvas" zIndex='3' /> */}
-    </section>);
+    </div>);
 }
 
 export default Home;

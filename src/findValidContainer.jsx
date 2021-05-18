@@ -16,6 +16,6 @@ export default function createValidator(validTargets) {
                     invalids++
                 }
             }
-        return null;
+        return false;
     });
 }
