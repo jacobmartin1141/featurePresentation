@@ -1,6 +1,5 @@
 import React from 'react';
 
-import Header from './Header';
 import UpdatesRevolver from './UpdatesRevolver';
 
 const bulletPoints = {
@@ -10,8 +9,9 @@ const bulletPoints = {
         "It's designed to work on broad and granular scales, to define your ideas, to define the relationships between them, and to plan out the development process effortlessly.",
     ],
     how: [
-        "It includes a suite of intuitive tools which allow you to quickly plan out and organize your game's design documentation however you want.",
-        "As you develop your ideas, the program will intelligently recommend articles, essays, videos and tutorials from across the web, tailored to fit your game's vision. These include programming and implementation tutorials by veteran developers, and design pitfalls to beware from world class designers!",
+        "It includes a suite of intuitive tools which allow you to quickly plan out, organize, and iterate on your game's design however you need.",
+        "As you develop your ideas, the program will intelligently recommend articles, essays, videos and tutorials from across the web, tailored to fit your game's vision.",
+        "These include programming and implementation tutorials by veteran developers, and design pitfalls to beware from world class designers!",
     ],
 }
 
@@ -35,9 +35,7 @@ function About({ updates }) {
         return <BulletPoint text={point} />;
     })
 
-    return(<section class="container-fluid page">
-        <Header/>
-        <br/>
+    return(<>
         <UpdatesRevolver updates={updates}/>
         <div class="container-xl">
             <article class="container-xl">
@@ -46,12 +44,13 @@ function About({ updates }) {
                 </h3>
                 <div class="row">
                     {displayWhat}
-                    <div class="col-md-8">
-                        <div class="embed-responsive embed-responsive-16by9 col-xs-12 text-center"
+                    <div class="col-md-8 shadow-2">
+                        <div class="embed-responsive embed-responsive-16by9 col-xs-12"
                             style={{
-                                margin: '1vw',
+                                margin: '5px',
+                                marginLeft: '-10px',
                                 marginTop: '0',
-                                marginBottom: '2vw',
+                                marginBottom: '17px',
                             }}>
                             <iframe class="embed-responsive-item"  
                                 src="https://www.youtube.com/embed/Bazei8Lh2j0" 
@@ -69,7 +68,7 @@ function About({ updates }) {
                 </div>
             </article>
         </div>
-    </section>);
+    </>);
 }
 
 export default About;

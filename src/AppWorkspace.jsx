@@ -133,17 +133,27 @@ function BasicLine({rootEl, connEl}) {
     />);
 }
 
+function generateTestContainers(num) {
+    return [...Array(num).keys()].map((id) => {
+        return <BasicContainer id={id + 1} xPos={(id * 10) - (Math.floor(id / 324) * 324 * 10)} yPos={Math.floor(id / 324) * 10} />;
+    });
+}
+
+function generateTestConnections(num) {
+    return [...Array(num - 1).keys()].map((id) => {
+        return( {root: (id + 1), connects: (id + 2)} );
+    });
+}
+
 function Home() {
     const stateInit = {
         history: [],
         availableIDs: [],
         containers: [
-            <BasicContainer id={1} xPos={100} yPos={120}/>,
-            <BasicContainer id={2} xPos={200} yPos={400}/>,
+            ...generateTestContainers(10044)
         ],
         connections: [
-            {root: 1,
-            connects: 2,},
+            ...generateTestConnections(1)
         ],
         lines: [],
         displayLines: [],
@@ -380,16 +390,28 @@ function Home() {
     const deleteContainer = (origin, target, event) => {
         const targetId = parseInt(target.id,10);
 
-        const newContainers = stateRef.current.containers.filter((cont) => {
-            for(let p = document.getElementById(cont.props.id);
-            validTargets.includes(p.className);
-            p = p.parentElement) {
+        // const targetIndex = stateRef.current.containers.find((cont) => {
+        //     const p = document.getElementById(cont.props.id);
 
-                if(p.id === targetId) {
-                    return false;
-                }
+        //     return(parseInt(p.id,10) === targetId);
+        // });
+
+        // let placeholder = stateRef.current.containers;
+        // placeholder.splice(targetIndex, 1);
+
+        // const newContainers = placeholder;
+
+        console.log(document.getElementById(targetId));
+
+        const newContainers = stateRef.current.containers.filter((cont, index) => {
+            const p = document.getElementById(cont.props.id);
+
+            if(parseInt(p.id,10) === targetId) {
+                console.log(index, p.id);
+
             }
-            return true;
+
+            return(parseInt(p.id,10) !== targetId)
         });
 
         const newConnections = stateRef.current.connections.filter((conn) => {
@@ -404,13 +426,13 @@ function Home() {
             setState({
                 ...stateRef.current,
                 availableIDs: [...stateRef.current.availableIDs, targetId],
-                containers: newContainers,
+                containers: [...newContainers],
                 connections: [...newConnections] 
             });
         } else {
             setState({
                 ...stateRef.current,
-                containers: newContainers,
+                containers: [...newContainers],
                 connections: [...newConnections]
             });
         }

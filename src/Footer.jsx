@@ -2,7 +2,9 @@ import React from 'react';
 
 function Footer() {
     return(<footer class="container-fluid">
-
+        <div class="container-xl">
+            <p>Developed by Jacob Martin</p>
+        </div>
     </footer>);
 }
 

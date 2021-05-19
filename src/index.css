@@ -57,14 +57,14 @@ footer {
 }
 
 .shadow-2 {
-  filter:drop-shadow(0.65vw 7px 1px rgb(209, 150, 40));
+  filter:drop-shadow(15px 15px 0.5px rgb(209, 150, 40));
 }
 
 article {
   border-radius: 25px;
   background:rgb(247, 176, 45);
   margin: 1vh;
-  padding: 0 0 7px;
+  padding: 0px 0px 10px 0px;
   filter:drop-shadow(10px 10px 2px rgb(129, 86, 5));
 }
 
@@ -78,9 +78,10 @@ article img {
 }
 
 .bullet-point {
-  margin: 1vw;
+  margin: 5px;
+  margin-right: 20px;
   margin-top: 0;
-  margin-bottom: 0.75vw;
+  margin-bottom: 13px;
   background: rgb(255, 216, 143);
   border-radius: 25px;
 }
@@ -103,6 +104,7 @@ article img {
   border-style: solid;
   border-width: 0.2vh;
   width: fit-content;
+  font-size: 1.5vh;
 }
 
 .ContextMenu button {
@@ -124,6 +126,7 @@ article img {
 .box {
   background-color: rgb(255, 196, 87);
   border-style: solid;
+  border-width: 0.1vh;
   text-align:center;
   padding: 15px 15px 15px 15px;
   cursor: '';
@@ -167,7 +170,7 @@ svg {
 
 .scb button {
   height: 7vh;
-  font-size: 2.5vh;
+  font-size: 2.2vw;
   border-width: 0.5vh;
   margin: 0.2vh 0.2vh 0.2vh 0.2vh;
   padding: 0;

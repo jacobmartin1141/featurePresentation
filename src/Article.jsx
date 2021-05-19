@@ -11,9 +11,7 @@ function Article({ updates }) {
         return <p>{text}</p>
     });
 
-    return(<section class="container-fluid page">
-        <Header />
-        <br />
+    return(<>
         <div class="container-xl">
             <div class="row">
                 <article>
@@ -30,7 +28,7 @@ function Article({ updates }) {
                 </article>
             </div>
         </div>
-    </section>);
+    </>);
 }
 
 export default Article;

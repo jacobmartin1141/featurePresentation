@@ -2,11 +2,14 @@ import React from "react";
 import {
   BrowserRouter as Router,
   Route,
+  Switch,
 } from "react-router-dom";
 
 import AppWorkspace from './AppWorkspace';
+import Header from './Header';
 import About from './About';
 import Article from './Article';
+import Updates from './Updates';
 import Footer from './Footer';
 
 const updates = [
@@ -30,23 +33,38 @@ const updates = [
 ];
 
 function App() {
-  return (<>
-    <Router>
-      <Route exact path="/">
-        <About updates={updates}/>
-      
-      </Route>
-      <Route path="/updates/:updateId">
-        <Article updates={updates}/>
+  return (<Router>
+      <Switch>
+        <Route exact path="/app">
+          <AppWorkspace />
+        </Route>
 
-      </Route>
-      <Route path="/app">
-        <AppWorkspace />
+        <Route exact path="">
+          <section class="container-fluid page">
+            <Header />
 
-      </Route>
-    </Router>
-    <Footer />
-    </>);
+            <Router>
+              <Switch>
+                <Route exact path="/updates/:updateId">
+                  <Article updates={updates}/>
+
+                </Route>
+                <Route exact path="/updates">
+                  <Updates updates={updates}/>
+
+                </Route>
+                <Route exact path="/">
+                  <About updates={updates}/>
+                </Route>
+
+              </Switch>
+            </Router>
+
+          </section>
+          <Footer />
+        </Route>
+      </Switch>
+    </Router>);
 }
 
 export default App;
