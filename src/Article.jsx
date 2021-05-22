@@ -2,8 +2,6 @@ import React from 'react';
 
 import { useParams } from 'react-router';
 
-import Header from './Header';
-
 function Article({ updates }) {
     const { updateId } = useParams();
 

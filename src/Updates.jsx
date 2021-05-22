@@ -10,7 +10,7 @@ function ArticleContainer({update, id}) {
                 alt={update.imgAlt}
             />
             <h3>{update.title}</h3>
-            <p>{update.text[0]}</p>
+            <p>{update.text[0].slice(0, 255)}</p>
             <a href={`/updates/${id}`}>[Read More]</a>
         </div>
     </article>);

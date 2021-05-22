@@ -16,42 +16,43 @@ function ContextMenuGenerator({buttons, active}) {
     const menusRef = useRef({});
     menusRef.current = menus;
 
-    function findMenuIndexById(id) {
-        return menusRef.current.findIndex((menu) => {
-            return (menu.props.id === id);
-        });
-    }
-
-    const expandMenuHandler = (event, func, id, target) => {
-        const foundMenu = findMenuIndexById(id);
-
-        if(foundMenu === -1) {
-            setMenus([
-                ...menusRef.current,
-                <ContextMenu
-                    key={menusRef.current.length}
-                    target={target}
-                    id={menusRef.current.length}
-                    buttons={func}
-                    xPos={event.pageX + 10}
-                    yPos={event.pageY}
-                    event={event}
-                />
-            ]);
-        
-        } else {
-            const newMenus = menusRef.current.reduce((acc, menu, index) => {
-                if(index === foundMenu) {
-                    return acc;
-                }
-                return [...acc, menu];
-            }, []);
-
-            setMenus([...newMenus]);
-        }
-    }
     
-    function BasicButton({target, origin, id, text, func, expandMenuHandler}) {
+    function BasicButton({target, origin, id, text, func}) {
+        function findMenuIndexById(id) {
+            return menusRef.current.findIndex((menu) => {
+                return (menu.props.id === id);
+            });
+        }
+    
+        const expandMenuHandler = (event, func, id, target) => {
+            const foundMenu = findMenuIndexById(id);
+    
+            if(foundMenu === -1) {
+                setMenus([
+                    ...menusRef.current,
+                    <ContextMenu
+                        key={menusRef.current.length}
+                        target={target}
+                        id={menusRef.current.length}
+                        buttons={func}
+                        xPos={event.pageX + 10}
+                        yPos={event.pageY}
+                        event={event}
+                    />
+                ]);
+            
+            } else {
+                const newMenus = menusRef.current.reduce((acc, menu, index) => {
+                    if(index === foundMenu) {
+                        return acc;
+                    }
+                    return [...acc, menu];
+                }, []);
+    
+                setMenus([...newMenus]);
+            }
+        }
+
         if(typeof(func) == "function") {
             const clickFunction = (event) => {
                 setMenus([]);
@@ -69,9 +70,9 @@ function ContextMenuGenerator({buttons, active}) {
         );
     }
         
-    function ContextMenu({target, id, buttons, xPos, yPos, expandMenuHandler, event}) {
+    function ContextMenu({target, id, buttons, xPos, yPos, event}) {
         const buttonsArray = buttons.map((button) => {
-            return <><BasicButton target={target} origin={event} id={id} text={button.text} func={button.function} expandMenuHandler={expandMenuHandler} /><br/></>
+            return <><BasicButton target={target} origin={event} id={id} text={button.text} func={button.function} /><br/></>
         });
             
         return(<div
@@ -103,7 +104,6 @@ function ContextMenuGenerator({buttons, active}) {
                     buttons={buttons[target.className]}
                     xPos={event.pageX + workSpace.scrollLeft}
                     yPos={event.pageY + workSpace.scrollTop}
-                    expandMenuHandler={expandMenuHandler}
                     event={event}
                     target={target}
                 />]);

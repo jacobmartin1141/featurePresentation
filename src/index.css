@@ -12,6 +12,17 @@ code {
     monospace;
 }
 
+/* COLORS */
+
+.primary-color {
+  background:rgb(247, 176, 45);
+  border-color: rgb(209, 150, 40);
+}
+
+.secondary-color {
+  background: rgb(255, 216, 143);
+}
+
 /* PAGES */
 
 iframe {
@@ -27,9 +38,7 @@ iframe {
 
 header {
   padding: 0.25em;
-  background:rgb(247, 176, 45);
   border-bottom: solid;
-  border-color: rgb(209, 150, 40);
 }
 
 header h1 {
@@ -45,11 +54,9 @@ header h1:hover {
 }
 
 footer {
-  background:rgb(247, 176, 45);
   height: 140px;
   min-height: 15vh;
   border-top: solid;
-  border-color: rgb(209, 150, 40);
 }
 
 .shadow-1 {
@@ -170,7 +177,7 @@ svg {
 
 .scb button {
   height: 7vh;
-  font-size: 2.2vw;
+  font-size: 3vh;
   border-width: 0.5vh;
   margin: 0.2vh 0.2vh 0.2vh 0.2vh;
   padding: 0;

@@ -150,10 +150,10 @@ function Home() {
         history: [],
         availableIDs: [],
         containers: [
-            ...generateTestContainers(10044)
+            ...generateTestContainers(10)
         ],
         connections: [
-            ...generateTestConnections(1)
+            ...generateTestConnections(2)
         ],
         lines: [],
         displayLines: [],
@@ -167,6 +167,57 @@ function Home() {
     const stateRef = useRef({});
     stateRef.current = state;
     
+    useEffect(() => {
+        console.log("IDS", stateRef.current.availableIDs);
+    }, [stateRef.current.containers]);
+
+    useEffect(() => {
+        //Memory optimizing system. Deleted containers don't shift the containers array immediately, instead they get queued
+        const interval = setInterval(() => {
+            const containerProxy = stateRef.current.containers;
+
+            const availableIdsLength = stateRef.current.availableIDs.length
+            
+            if(availableIdsLength === 0) return;
+            
+            const emptyIndex = (stateRef.current.availableIDs[0] - 1);
+            
+            if(emptyIndex === availableIdsLength) return;
+
+            const targetItem = containerProxy[emptyIndex + 1];
+
+            let preCont = containerProxy.slice(0, emptyIndex);
+            let postCont = containerProxy.slice(emptyIndex + 1);
+
+
+            if(emptyIndex + 1 === availableIdsLength) {
+                setState({
+                    ...stateRef.current,
+                    containers: [...preCont],
+                    availibleIds: [...stateRef.current.availableIDs.splice(0, 1)],
+                });
+                
+            }
+            console.log("before", preCont);
+
+            preCont = [...preCont, targetItem];
+
+            console.log("after", preCont);
+
+            preCont = [...preCont, ...postCont]
+
+            console.log("again after", preCont);
+
+            setState({
+                ...stateRef.current,
+                containers: [...preCont],
+                availibleIds: [(emptyIndex + 1), ...stateRef.current.availableIDs.splice(0, 1)],
+            });
+
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [stateRef.current.availableIDs]);
+
     useEffect(() => {
         generateLines();
     }, [stateRef.current.connections]);
@@ -203,35 +254,6 @@ function Home() {
             setState({...stateRef.current, connections: [...newConnections] } );
         }
     }
-    // function drawConnections() {
-    //     const canvasElement = document.getElementById("myCanvas");
-    //     const ctx = canvasElement.getContext("2d");
-
-    //     ctx.lineWidth = 4;
-        
-    //     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    
-    //     stateRef.current.connections.forEach((connection) => {
-    //         const rootEl = document.getElementById(connection.root);    
-
-    //         const rootPos = findParentPos(rootEl);
-
-    //         const connEl = document.getElementById(connection.connects);
-
-    //         const connPos = findParentPos(connEl);
-
-    //         ctx.beginPath();
-    //         ctx.moveTo(
-    //             rootPos.left + (parseInt(rootEl.style.width,10) / 2),
-    //             rootPos.top + (parseInt(rootEl.style.height,10) / 2),
-    //         );
-    //         ctx.lineTo(
-    //             connPos.left + (parseInt(connEl.style.width,10) / 2),
-    //             connPos.top + (parseInt(connEl.style.height,10) / 2),
-    //         );
-    //         ctx.stroke();
-    //     });
-    // }
 
     function generateLines() {
         let newLines = [];
@@ -390,17 +412,6 @@ function Home() {
     const deleteContainer = (origin, target, event) => {
         const targetId = parseInt(target.id,10);
 
-        // const targetIndex = stateRef.current.containers.find((cont) => {
-        //     const p = document.getElementById(cont.props.id);
-
-        //     return(parseInt(p.id,10) === targetId);
-        // });
-
-        // let placeholder = stateRef.current.containers;
-        // placeholder.splice(targetIndex, 1);
-
-        // const newContainers = placeholder;
-
         console.log(document.getElementById(targetId));
 
         const newContainers = stateRef.current.containers.filter((cont, index) => {
@@ -537,9 +548,16 @@ function Home() {
             ]},
             {text: 'Create Container', function: createContainer},
             {text: 'Edit Design >', function: [
-                {text: "Edit Colors",
-                function: () => {console.log("Edit WorkSpace Colors")}
-                },
+                {text: "Select Preset >",
+                function: [
+                    {text: "Default", function: () => {console.log("Default Design")}},
+                    {text: "Modern", function: () => {console.log("Modern Design")}},
+                ]},
+                {text: "Create Custom Design >",
+                function: [
+                    {text: "Set Colors", function: () => {console.log("Custom Colors")}},
+                    {text: "Option 2", function: () => {console.log("Custom Colors")}}
+                ]},
             ]},
         ],
         "box": [
