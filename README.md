@@ -1,10 +1,14 @@
 # Feature Presentation
 
+![Alt text](/public/readMeScreenshots/frontpage.PNG?raw=true "Frontpage screenshot")
+
 # Intended Experience
 
 Feature Presentation isn't so much meant to be a traditional web app, which serves a market by solving a problem (though it does that as well), as much as it is meant to be a creativity enabler, a sort of extension of the user. At it's core, it's a fast and intuitive way to jott down ideas. The hope of it's design is that once it's fast and intuitive enough, once the bandwidth for communicating ideas between the user and the app is low enough, that information will be able to move freely, the app will become more like a technological extension to the user's biological RAM.
 
 # Design Pillars
+
+![Alt text](/public/readMeScreenshots/layoutExample.PNG?raw=true "Workspace screenshot")
 
 The typical user experience will have a couple of stages:
     1) Ideation: Write down and organize your thoughts into clearly defined design pillars. This is the process of discovering what exactly it is that you're trying to accomplish with your project.

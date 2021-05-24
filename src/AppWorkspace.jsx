@@ -85,7 +85,11 @@ function BasicContainer({id, xPos = 0, yPos = 0}) {
         </form>, text: displayRef.current.text});
     }
 
-    const displayInit = {element: <h3 onClick={displayForm}>New Container</h3>, text: "New Container"}
+    function BasicH3() {
+        return <h3 onClick={displayForm}>{displayRef.current.text}</h3>
+    }
+
+    const displayInit = {element: <BasicH3 />, text: "New Container"}
     const [display, setDisplay] = useState(displayInit);
     const displayRef = useRef({});
     displayRef.current = display;
@@ -98,8 +102,8 @@ function BasicContainer({id, xPos = 0, yPos = 0}) {
         }
     }
 
-    const displayName = (event) => {
-        setDisplay({element: <h3 onClick={displayForm}>{displayRef.current.text}</h3>, text: displayRef.current.text});
+    const displayName = () => {
+        setDisplay({element: <BasicH3 />, text: displayRef.current.text});
     }
     
     return(<div
@@ -150,10 +154,10 @@ function Home() {
         history: [],
         availableIDs: [],
         containers: [
-            ...generateTestContainers(10)
+            ...generateTestContainers(3)
         ],
         connections: [
-            ...generateTestConnections(2)
+            ...generateTestConnections(3)
         ],
         lines: [],
         displayLines: [],
@@ -337,9 +341,9 @@ function Home() {
         // console.log(container.style.zIndex);
 
         if(container.children.length === 1) {
-            container.style.height = (50 / pOffset.depth) * 3 + 'px';
+            container.style.height = (50 / pOffset.depth) * 4 + 'px';
             container.style.width = (50 / pOffset.depth) * 6 + 'px';
-            container.style.fontSize = (5 / pOffset.depth) * 4 + 'px';
+            container.style.fontSize = (5 / (pOffset.depth)) * 4 + 'px';
         }
         
         
@@ -352,7 +356,6 @@ function Home() {
         if(childBottomPos + 15 > parseInt(target.style.height,10)) {
             target.style.height = childBottomPos + 15 + 'px'
         }
-
 
         container.remove();
         target.appendChild(container);
