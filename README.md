@@ -4,7 +4,7 @@
 
 # Intended Experience
 
-Feature Presentation isn't so much meant to be a traditional web app, which serves a market by solving a problem (though it does that as well), as much as it is meant to be a creativity enabler, a sort of extension of the user. At it's core, it's a fast and intuitive way to jott down ideas. The hope of it's design is that once it's fast and intuitive enough, once the bandwidth for communicating ideas between the user and the app is low enough, that information will be able to move freely, the app will become more like a technological extension to the user's biological RAM.
+Feature Presentation isn't so much meant to be a traditional web app, which serves a market by solving a problem (though it does that as well), as much as it is meant to be a creativity enabler, a sort of extension of the user. At it's core, it's a fast and intuitive way to jott down ideas. The hope of it's design is that once it's fast and intuitive enough, once the bandwidth for communicating ideas between the user and the app is low enough, that the information will be able to move freely, and the app will become more like a technological extension to the user's biological RAM.
 
 # Design Pillars
 
