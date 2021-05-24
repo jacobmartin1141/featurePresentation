@@ -173,49 +173,49 @@ function Home() {
 
     useEffect(() => {
         //Memory optimizing system. Deleted containers don't shift the containers array immediately, instead they get queued
-        const interval = setInterval(() => {
-            const containerProxy = stateRef.current.containers;
+        // const interval = setInterval(() => {
+        //     const containerProxy = stateRef.current.containers;
 
-            const availableIdsLength = stateRef.current.availableIDs.length
+        //     const availableIdsLength = stateRef.current.availableIDs.length
             
-            if(availableIdsLength === 0) return;
+        //     if(availableIdsLength === 0) return;
             
-            const emptyIndex = (stateRef.current.availableIDs[0] - 1);
+        //     const emptyIndex = (stateRef.current.availableIDs[0] - 1);
             
-            if(emptyIndex === availableIdsLength) return;
+        //     if(emptyIndex === availableIdsLength) return;
 
-            const targetItem = containerProxy[emptyIndex + 1];
+        //     const targetItem = containerProxy[emptyIndex + 1];
 
-            let preCont = containerProxy.slice(0, emptyIndex);
-            let postCont = containerProxy.slice(emptyIndex + 1);
+        //     let preCont = containerProxy.slice(0, emptyIndex);
+        //     let postCont = containerProxy.slice(emptyIndex + 1);
 
 
-            if(emptyIndex + 1 === availableIdsLength) {
-                setState({
-                    ...stateRef.current,
-                    containers: [...preCont],
-                    availibleIds: [...stateRef.current.availableIDs.splice(0, 1)],
-                });
+        //     if(emptyIndex + 1 === availableIdsLength) {
+        //         setState({
+        //             ...stateRef.current,
+        //             containers: [...preCont],
+        //             availibleIds: [...stateRef.current.availableIDs.splice(0, 1)],
+        //         });
                 
-            }
-            console.log("before", preCont);
+        //     }
+        //     console.log("before", preCont);
 
-            preCont = [...preCont, targetItem];
+        //     preCont = [...preCont, targetItem];
 
-            console.log("after", preCont);
+        //     console.log("after", preCont);
 
-            preCont = [...preCont, ...postCont]
+        //     preCont = [...preCont, ...postCont]
 
-            console.log("again after", preCont);
+        //     console.log("again after", preCont);
 
-            setState({
-                ...stateRef.current,
-                containers: [...preCont],
-                availibleIds: [(emptyIndex + 1), ...stateRef.current.availableIDs.splice(0, 1)],
-            });
+        //     setState({
+        //         ...stateRef.current,
+        //         containers: [...preCont],
+        //         availibleIds: [(emptyIndex + 1), ...stateRef.current.availableIDs.splice(0, 1)],
+        //     });
 
-        }, 1000);
-        return () => clearInterval(interval);
+        // }, 1000);
+        // return () => clearInterval(interval);
     }, [stateRef.current.availableIDs]);
 
     useEffect(() => {
