@@ -10,7 +10,7 @@ const bulletPoints = {
     how: [
         "It includes a suite of intuitive tools which allow you to quickly plan out, organize, and iterate on your game's design however you need.",
         "As you develop your ideas, the program will intelligently recommend articles, essays, videos and tutorials from across the web, tailored to fit your game's vision...",
-        "...These include programming and implementation tutorials by veteran developers, and design pitfalls to beware from the designers of your favorite games!",
+        "...These include the best programming and implementation tutorials on the web, by veteran developers, and design advice from the designers of your favorite games!",
     ],
 }
 

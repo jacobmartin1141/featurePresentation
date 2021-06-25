@@ -597,13 +597,13 @@ function Home() {
                             href="../public/index.html"
                             download
                             class="col-3">
-                                Download Layout
+                                Download
                         </button>
                         <button
                             href="../public/index.html"
                             download
                             class="col-3">
-                                Save Layout
+                                Save
                         </button>
                         <div class="col-3"/>
                         <button
